@@ -3,7 +3,9 @@ import puppeteer from "puppeteer";
 export const getStockPrice = async (stockTicker: string) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto(`https://finance.yahoo.com/quote/${stockTicker}`);
+  await page.goto(`https://finance.yahoo.com/quote/${stockTicker}`, {
+    waitUntil: "domcontentloaded",
+  });
 
   const priceOfStock = await page.evaluate(() => {
     const priceElement = document.querySelector(".livePrice") as HTMLElement;
@@ -29,7 +31,9 @@ export const getHistoricalData = async (
     }
   });
 
-  await page.goto(`https://finance.yahoo.com/quote/${stockTicker}/history`);
+  await page.goto(`https://finance.yahoo.com/quote/${stockTicker}/history`, {
+    waitUntil: "domcontentloaded",
+  });
 
   const historicalPrice = await page.evaluate((day) => {
     const table = document.querySelector("tbody") as HTMLElement;
