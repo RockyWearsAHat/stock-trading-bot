@@ -4,7 +4,7 @@
 
 # Info
 
-This is a project to get stock data and have AI analyze the data to tell you if it's a buy or a sell, or a hold, ideally I would like to make the AI fast enough at evaluation and recognition that it could day trade, but I'm still unsure of how to train my own model
+This is a project to get stock data and have AI analyze the data to tell you if it's a buy, a sell, or a hold, ideally I would like to make the AI fast enough at evaluation and recognition that it could day trade, but I'm still unsure of how to train my own model
 
 # Contributing
 
