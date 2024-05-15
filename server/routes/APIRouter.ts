@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { getHistoricalData, getStockPrice } from "../api/getStockPrice";
+import { getDates } from "../helpers/getDates";
 export const APIRouter = Router();
 
 APIRouter.get("/currentPrice", async (req: Request, res: Response) => {
@@ -18,18 +19,57 @@ APIRouter.get("/currentPrice", async (req: Request, res: Response) => {
 });
 
 APIRouter.get("/historicalData", async (req: Request, res: Response) => {
-  let { day, dayRange, stock } = req.body;
+  let { day, stock } = req.body;
 
-  let currentDate: string;
-  if (!day || !dayRange) {
-    currentDate = new Date(Date.now()).toLocaleString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
+  if (day.indexOf("-") != -1 || day.indexOf("to") != -1) {
+    let dateRange =
+      day.indexOf("-") != -1
+        ? day.split("-").map((d: string) => d.trim())
+        : day.split("to").map((d: string) => d.trim());
+
+    dateRange = dateRange.map((d: string) => {
+      if (d.toLocaleLowerCase().indexOf("today") != -1) {
+        return Date.now();
+      } else {
+        return d;
+      }
     });
+
+    const firstDate = new Date(dateRange[0]);
+    const secondDate = new Date(dateRange[1]);
+
+    if (firstDate < secondDate) {
+      day = getDates(firstDate, secondDate) as Date[];
+    } else {
+      day = getDates(secondDate, firstDate) as Date[];
+    }
   }
 
-  console.log(day);
+  if (!day || day == "") {
+    //If no day, get today and format
+    day = new Date(Date.now()).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }) as string;
+  } else if (typeof day == "string") {
+    //If single day, format
+    day = new Date(day).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }) as string;
+  } else {
+    //If multiple days
+    day = day.map((d: Date) => {
+      console.log(d);
+      return new Date(d).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    });
+  }
 
   const historicalData = await getHistoricalData(stock, day);
 
