@@ -31,7 +31,6 @@ APIRouter.get("/historicalData", async (req: Request, res: Response) => {
   }
 
   if (day.indexOf("-") != -1 || day.indexOf("to") != -1) {
-    console.log("date range");
     let dateRange =
       day.indexOf("-") != -1
         ? day.split("-").map((d: string) => d.trim())
