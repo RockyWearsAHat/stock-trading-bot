@@ -19,9 +19,19 @@ APIRouter.get("/currentPrice", async (req: Request, res: Response) => {
 });
 
 APIRouter.get("/historicalData", async (req: Request, res: Response) => {
-  let { day, stock } = req.body;
+  let { day = "", stock } = req.body;
+
+  if (!stock) {
+    return res.json("Please provide a stock ticker");
+  }
+
+  const stockPrice = await getStockPrice(stock);
+  if (stockPrice == "-") {
+    return res.json("Invalid stock ticker");
+  }
 
   if (day.indexOf("-") != -1 || day.indexOf("to") != -1) {
+    console.log("date range");
     let dateRange =
       day.indexOf("-") != -1
         ? day.split("-").map((d: string) => d.trim())
@@ -38,6 +48,8 @@ APIRouter.get("/historicalData", async (req: Request, res: Response) => {
     const firstDate = new Date(dateRange[0]);
     const secondDate = new Date(dateRange[1]);
 
+    console.log(firstDate, secondDate);
+
     if (firstDate < secondDate) {
       day = getDates(firstDate, secondDate) as Date[];
     } else {
@@ -45,7 +57,11 @@ APIRouter.get("/historicalData", async (req: Request, res: Response) => {
     }
   }
 
-  if (!day || day == "") {
+  if (
+    !day ||
+    day == "" ||
+    (day instanceof String && day.toLocaleLowerCase() == "today")
+  ) {
     //If no day, get today and format
     day = new Date(Date.now()).toLocaleString("en-US", {
       month: "short",
